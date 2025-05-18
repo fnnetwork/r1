@@ -31,9 +31,6 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 # Copy modified user_generator.rc to skip user creation
 COPY user_generator.rc /dockerstartup/user_generator.rc
 
-# Copy custom startup script to control the startup flow
-COPY startup.sh /dockerstartup/startup.sh
-
 # Adjust permissions on /dockerstartup/ and scripts
 RUN chown -R headless:headless /dockerstartup && \
     chmod -R 755 /dockerstartup && \
@@ -53,4 +50,4 @@ ENV VNC_RESOLUTION=1600x761 \
     USER_GID=1000
 
 # Use the custom startup script as the entrypoint
-CMD ["/dockerstartup/startup.sh"]
+CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
