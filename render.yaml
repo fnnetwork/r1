@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: r1
+    env: docker
+    dockerCommand: ""
+    envVars:
+      - key: HTTP_PASSWORD
+        value: yourhttppassword  # Set a secure password for basic auth
+      - key: VNC_PW
+        value: yourvncpassword  # Set a secure VNC password
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    registry:
+      type: docker-hub
+      username: yourdockerhubusername
+      password: yourdockerhubtoken  # Use the access token, not your password
