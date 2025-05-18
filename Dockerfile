@@ -53,4 +53,4 @@ ENV VNC_RESOLUTION=1600x761 \
     USER_GID=1000
 
 # Use the custom startup script as the entrypoint
-CMD ["/dockerstartup/startup.sh"]
+CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
