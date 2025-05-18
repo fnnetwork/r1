@@ -8,16 +8,11 @@ USER root
 RUN mkdir -p /var/lib/apt/lists/partial && \
     chown root:root /var/lib/apt/lists/partial && \
     chmod 755 /var/lib/apt/lists/partial && \
-    # Install Nginx and apache2-utils for htpasswd
+    # Install Nginx, apache2-utils, and supervisor
     apt-get update && \
-    apt-get install -y nginx apache2-utils && \
+    apt-get install -y nginx apache2-utils supervisor && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
-# Debug: Find the supervisord binary path
-RUN echo "Looking for supervisord..." && \
-    which supervisord || echo "supervisord not found in PATH" && \
-    find / -type f -name "supervisord" 2>/dev/null || echo "supervisord not found"
 
 # Create .htpasswd file for basic auth (username: admin, password: set via HTTP_PASSWORD)
 RUN htpasswd -bc /etc/nginx/.htpasswd admin ${HTTP_PASSWORD:-defaultpassword}
@@ -30,6 +25,9 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 
 # Copy modified user_generator.rc to skip user creation
 COPY user_generator.rc /dockerstartup/user_generator.rc
+
+# Copy custom startup script to control the startup flow
+COPY startup.sh /dockerstartup/startup.sh
 
 # Adjust permissions on /dockerstartup/ and scripts
 RUN chown -R headless:headless /dockerstartup && \
@@ -50,4 +48,4 @@ ENV VNC_RESOLUTION=1600x761 \
     USER_GID=1000
 
 # Use the custom startup script as the entrypoint
-CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["/dockerstartup/startup.sh"]
