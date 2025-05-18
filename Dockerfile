@@ -25,11 +25,15 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 
 # Copy modified user_generator.rc to skip user creation
 COPY user_generator.rc /dockerstartup/user_generator.rc
-RUN chmod +x /dockerstartup/user_generator.rc && \
-    chown headless:headless /dockerstartup/user_generator.rc && \
-    # Adjust permissions on /dockerstartup/ to allow headless user to write
-    chown -R headless:headless /dockerstartup && \
-    chmod -R 755 /dockerstartup
+
+# Copy custom startup script to control the startup flow
+COPY startup.sh /dockerstartup/startup.sh
+
+# Adjust permissions on /dockerstartup/ and scripts
+RUN chown -R headless:headless /dockerstartup && \
+    chmod -R 755 /dockerstartup && \
+    chmod +x /dockerstartup/user_generator.rc && \
+    chmod +x /dockerstartup/startup.sh
 
 # Switch back to the default non-root user (headless)
 USER headless
@@ -43,5 +47,5 @@ ENV VNC_RESOLUTION=1600x761 \
     USER_UID=1000 \
     USER_GID=1000
 
-# Start supervisord to manage Nginx and NoVNC
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+# Use the custom startup script as the entrypoint
+CMD ["/dockerstartup/startup.sh"]
