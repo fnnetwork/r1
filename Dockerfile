@@ -33,7 +33,9 @@ COPY startup.sh /dockerstartup/startup.sh
 RUN chown -R headless:headless /dockerstartup && \
     chmod -R 755 /dockerstartup && \
     chmod +x /dockerstartup/user_generator.rc && \
-    chmod +x /dockerstartup/startup.sh
+    chmod +x /dockerstartup/startup.sh && \
+    # Ensure supervisord is accessible (adjust path if necessary)
+    chmod +x /usr/local/bin/supervisord 2>/dev/null || true
 
 # Switch back to the default non-root user (headless)
 USER headless
@@ -43,7 +45,7 @@ EXPOSE ${PORT:-6080}
 
 # Set resolution, VNC password, and user UID/GID to match headless (1000:1000)
 ENV VNC_RESOLUTION=1600x761 \
-    VNC_PW=yourvncpassword \
+    VNC_PW=ElectraOp \
     USER_UID=1000 \
     USER_GID=1000
 
