@@ -14,6 +14,11 @@ RUN mkdir -p /var/lib/apt/lists/partial && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Debug: Find the supervisord binary path
+RUN echo "Looking for supervisord..." && \
+    which supervisord || echo "supervisord not found in PATH" && \
+    find / -type f -name "supervisord" 2>/dev/null || echo "supervisord not found"
+
 # Create .htpasswd file for basic auth (username: admin, password: set via HTTP_PASSWORD)
 RUN htpasswd -bc /etc/nginx/.htpasswd admin ${HTTP_PASSWORD:-defaultpassword}
 
@@ -33,9 +38,7 @@ COPY startup.sh /dockerstartup/startup.sh
 RUN chown -R headless:headless /dockerstartup && \
     chmod -R 755 /dockerstartup && \
     chmod +x /dockerstartup/user_generator.rc && \
-    chmod +x /dockerstartup/startup.sh && \
-    # Ensure supervisord is accessible (adjust path if necessary)
-    chmod +x /usr/local/bin/supervisord 2>/dev/null || true
+    chmod +x /dockerstartup/startup.sh
 
 # Switch back to the default non-root user (headless)
 USER headless
@@ -45,7 +48,7 @@ EXPOSE ${PORT:-6080}
 
 # Set resolution, VNC password, and user UID/GID to match headless (1000:1000)
 ENV VNC_RESOLUTION=1600x761 \
-    VNC_PW=ElectraOp \
+    VNC_PW=yourvncpassword \
     USER_UID=1000 \
     USER_GID=1000
 
