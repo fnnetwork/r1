@@ -1,5 +1,5 @@
 #Use the base image
-FROM fredblgr/ubuntu-novnc:22.04
+FROM accetto/ubuntu-vnc-xfce-g3:latest
 
 #Expose the port on which NoVNC runs (80 inside the container)
 EXPOSE 80
