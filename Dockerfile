@@ -34,10 +34,12 @@ USER headless
 EXPOSE ${PORT:-6080}
 
 # Set resolution, VNC password, and user UID/GID to match headless (1000:1000)
+# Attempt to disable user generation if supported
 ENV VNC_RESOLUTION=1600x761 \
     VNC_PW=yourvncpassword \
     USER_UID=1000 \
-    USER_GID=1000
+    USER_GID=1000 \
+    GENERATE_USER=false
 
 # Start supervisord to manage Nginx and NoVNC
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
