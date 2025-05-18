@@ -1,8 +1,15 @@
 # Use a maintained base image with NoVNC and XFCE
-FROM accetto/ubuntu-vnc-xfce-g3:20.04
+FROM accetto/ubuntu-vnc-xfce-g3:latest
 
-# Install Nginx and apache2-utils for htpasswd
-RUN apt-get update && \
+# Switch to root user to install packages
+USER root
+
+# Ensure the /var/lib/apt/lists/partial directory exists with correct permissions
+RUN mkdir -p /var/lib/apt/lists/partial && \
+    chown root:root /var/lib/apt/lists/partial && \
+    chmod 755 /var/lib/apt/lists/partial && \
+    # Install Nginx and apache2-utils for htpasswd
+    apt-get update && \
     apt-get install -y nginx apache2-utils && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -15,6 +22,9 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy custom supervisord.conf to include Nginx
 COPY supervisord.conf /etc/supervisor/supervisord.conf
+
+# Switch back to the default non-root user (assumed to be 'headless')
+USER headless
 
 # Expose the dynamic port (Render sets PORT environment variable)
 EXPOSE ${PORT:-6080}
