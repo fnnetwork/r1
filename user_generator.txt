@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Check if USER_UID and USER_GID are set to 1000 (headless user)
+if [ "${USER_UID}" = "1000" ] && [ "${USER_GID}" = "1000" ]; then
+    echo "Using existing headless user (UID:GID 1000:1000), skipping user generation."
+    exit 0
+fi
+
+# Fallback to original user generation logic (simplified)
+# Normally, this would call the original script, but we're skipping it for now
+echo "User generation not implemented in this override."
+exit 1
