@@ -23,8 +23,12 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Copy custom supervisord.conf to include Nginx
 COPY supervisord.conf /etc/supervisor/supervisord.conf
 
-# Adjust permissions on /dockerstartup/ to allow headless user to write
-RUN chown -R headless:headless /dockerstartup && \
+# Copy modified user_generator.rc to skip user creation
+COPY user_generator.rc /dockerstartup/user_generator.rc
+RUN chmod +x /dockerstartup/user_generator.rc && \
+    chown headless:headless /dockerstartup/user_generator.rc && \
+    # Adjust permissions on /dockerstartup/ to allow headless user to write
+    chown -R headless:headless /dockerstartup && \
     chmod -R 755 /dockerstartup
 
 # Switch back to the default non-root user (headless)
@@ -34,12 +38,10 @@ USER headless
 EXPOSE ${PORT:-6080}
 
 # Set resolution, VNC password, and user UID/GID to match headless (1000:1000)
-# Attempt to disable user generation if supported
 ENV VNC_RESOLUTION=1600x761 \
     VNC_PW=yourvncpassword \
     USER_UID=1000 \
-    USER_GID=1000 \
-    GENERATE_USER=false
+    USER_GID=1000
 
 # Start supervisord to manage Nginx and NoVNC
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
