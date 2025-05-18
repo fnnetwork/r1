@@ -4,4 +4,4 @@
 /dockerstartup/user_generator.rc
 
 # Start supervisord to manage services
-exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+exec supervisord -c /etc/supervisor/supervisord.conf
