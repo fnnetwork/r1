@@ -1,7 +1,7 @@
 # Use a maintained base image with NoVNC and XFCE
-FROM accetto/ubuntu-vnc-xfce-g3:latest
+FROM accetto/ubuntu-vnc-xfce-g3:20.04
 
-# Switch to root user to install packages
+# Switch to root user to install packages and adjust permissions
 USER root
 
 # Ensure the /var/lib/apt/lists/partial directory exists with correct permissions
@@ -23,15 +23,21 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Copy custom supervisord.conf to include Nginx
 COPY supervisord.conf /etc/supervisor/supervisord.conf
 
-# Switch back to the default non-root user (assumed to be 'headless')
+# Adjust permissions on /dockerstartup/ to allow headless user to write
+RUN chown -R headless:headless /dockerstartup && \
+    chmod -R 755 /dockerstartup
+
+# Switch back to the default non-root user (headless)
 USER headless
 
 # Expose the dynamic port (Render sets PORT environment variable)
 EXPOSE ${PORT:-6080}
 
-# Set resolution and VNC password
+# Set resolution, VNC password, and user UID/GID to match headless (1000:1000)
 ENV VNC_RESOLUTION=1600x761 \
-    VNC_PW=yourvncpassword
+    VNC_PW=yourvncpassword \
+    USER_UID=1000 \
+    USER_GID=1000
 
 # Start supervisord to manage Nginx and NoVNC
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
